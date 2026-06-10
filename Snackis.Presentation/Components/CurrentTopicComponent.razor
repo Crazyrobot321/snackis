@@ -1,0 +1,21 @@
+﻿@using Snackis.Domain.Entities
+<div class="card mb-4 border-secondary shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between text-muted small">
+        <span>Posted by <strong>@CurrentTopic.AuthorName</strong></span>
+        <span>@CurrentTopic.Created?.ToString("yyyy-MM-dd")</span>
+    </div>
+    <div class="card-body">
+        @if(CurrentTopic.ImageSource != null)
+        {
+            <img src="@CurrentTopic.ImageSource" alt="Topic Image" class="img-fluid mb-3 rounded" width="250" height="250">
+        }
+        <h2></h2>
+        <h3 class="card-title h4">@CurrentTopic.Title</h3>
+        <p class="card-text mt-3">@CurrentTopic.Description</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ApplicationTopic CurrentTopic { get; set; } = default!;
+}

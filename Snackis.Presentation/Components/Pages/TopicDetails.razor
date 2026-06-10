@@ -1,0 +1,85 @@
+﻿@page "/topic/{CurrentTopicId}"
+@rendermode InteractiveServer
+@using System.Text.Json
+@using Snackis.Application.Interfaces.Api
+@using Snackis.Domain.Entities
+@inject ITopicServiceApi TopicService
+@inject IPostServiceApi PostService
+@inject IReportServiceApi ReportService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (CurrentTopic != null)
+{
+    <CurrentTopicComponent CurrentTopic="CurrentTopic" />
+    <h5 class="mb-3">Replies (@Posts?.Count)</h5>
+}
+
+@if (Posts != null && Posts.Count > 0)
+{
+    @foreach (var post in Posts)
+    {
+        <div class="card mb-3 ms-4 border-start border-primary border-3 shadow-sm">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between text-muted small mb-2">
+                    <strong>@post.AuthorName</strong>
+                    <div class="d-flex align-items-center gap-2">
+                        <span>@post.CreatedAt</span>
+                        @if (post.UserId == currentUserId)
+                        {
+                            <button class="btn btn-outline-secondary btn-sm py-0" @onclick="() => EditPost(post)">Edit</button>
+                            <button class="btn btn-outline-danger btn-sm py-0" @onclick="() => DeletePost(post.Id)">Delete</button>
+                        }
+                        <AuthorizeView Roles="Admin, User">
+                            <Authorized>
+                                <button class="btn btn-outline-warning btn-sm py-0" @onclick="() => ReportPost(post)">Report</button>
+                                @if(reportStatus != null)
+                                {
+                                    <span class="text-success small">@reportStatus</span>
+                                }
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+                </div>
+                @if(reporting == true)
+                {
+                    <textarea class="form-control mb-2" @bind="reportReason" rows="3" placeholder="Reason for reporting..."></textarea>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" @onclick="SendReport">Send</button>
+                        <button class="btn btn-secondary btn-sm" @onclick="Cancel">Cancel</button>
+                    </div>
+                }
+                @if (editingPostId == post.Id)
+                {
+                    <textarea class="form-control mb-2" @bind="editPostContent" rows="3"></textarea>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" @onclick="SaveEdit">Save</button>
+                        <button class="btn btn-secondary btn-sm" @onclick="Cancel">Cancel</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="card-text mb-1">@post.Content</p>
+                }
+            </div>
+        </div>
+    }
+}
+
+<AuthorizeView Roles="Admin, User" Context="authContext">
+    <Authorized>
+        <EditForm Model="newPost" OnValidSubmit="CreatePost">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mt-4 card p-3 bg-light">
+                <label for="PostContent" class="form-label fw-bold small text-secondary">Leave a Reply</label>
+                <InputTextArea id="PostContent" @bind-Value="newPost.Content" class="form-control mb-2" rows="3" placeholder="Write your response..." />
+                <button type="submit" class="btn btn-success btn-sm align-self-start">Post Reply</button>
+            </div>
+        </EditForm>
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-warning mt-4 small" role="alert">
+            Please <a href="Account/Login" class="alert-link">log in</a> to participate in this discussion.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>

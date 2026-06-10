@@ -1,0 +1,15 @@
+﻿@using Snackis.Domain.Entities
+<div class="card mb-3 ms-4 border-start border-primary border-3 shadow-sm">
+    <div class="card-body py-2">
+        <div class="d-flex justify-content-between text-muted small mb-2">
+            <strong>@post.AuthorName</strong>
+            <span>@post.CreatedAt</span>
+        </div>
+        <p class="card-text mb-1">@post.Content</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ApplicationPost post { get; set; } = default!;
+}

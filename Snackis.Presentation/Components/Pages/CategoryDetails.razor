@@ -1,0 +1,45 @@
+﻿@page "/category/{CatId}"
+@rendermode InteractiveServer
+@using Snackis.Application.Interfaces.Api
+@using Snackis.Domain.Entities
+@using Snackis.Presentation.Components.Account.Pages
+
+@inject ISubCategoryServiceApi SubCategoryService
+
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="/admin/subcategories" class="btn btn-primary">
+                <span class="oi oi-plus"></span> New Sub Category
+            </a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+    </NotAuthorized>
+</AuthorizeView>
+<div class="list-group shadow-sm">
+    @if (SubCategories != null && SubCategories.Count > 0)
+    {
+        @foreach (var subCategories in SubCategories)
+        {
+            <SubCategoryComponent SubCategories="subCategories" />
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No Sub Categories has been added yet.</div>
+    }
+</div>
+
+@code{
+
+    [Parameter]
+    public string CatId { get; set; } = "";
+    public List<ApplicationSubCategory> SubCategories { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        SubCategories = await SubCategoryService.GetByCategoryIdAsync(int.Parse(CatId));
+    }
+}

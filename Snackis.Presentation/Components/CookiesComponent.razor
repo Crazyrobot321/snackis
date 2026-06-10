@@ -1,0 +1,29 @@
+﻿@inject IJSRuntime JS
+@if (!hasConsent)
+{
+    <div class="alert alert-dark text-center m-3">
+        <p>Vi använder cookies för att förbättra upplevelsen.</p>
+        <button class ="btn btn-sm btn-primary ms-3" @onclick ="Accept">OK</button>
+    </div>
+}
+
+@code {
+    private bool hasConsent;
+    private bool initalized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            hasConsent = await JS.InvokeAsync<bool>("cookieConsent.get");
+            initalized = true;
+            StateHasChanged();
+        }
+    }
+    private async Task Accept()
+    {
+        await JS.InvokeVoidAsync("cookieConsent.accept");
+        hasConsent = true;
+        StateHasChanged();
+    }
+}

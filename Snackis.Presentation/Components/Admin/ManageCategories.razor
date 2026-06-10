@@ -1,0 +1,83 @@
+﻿@page "/admin/categories"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Snackis.Application.DTOs
+@using Snackis.Application.Interfaces.Api
+@using Snackis.Domain.Entities
+@inject ICategoryServiceApi CategoryServiceApi
+
+<div class="container mt-5">
+    <h2>Admin Dashboard</h2>
+    
+    <AdminHome />
+
+    @if (successMessage != null)
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="row">
+        @* New category *@
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5>New/Edit Category</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" @bind="currentCategory.Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" @bind="currentCategory.Description"></textarea>
+                    </div>
+                    
+                    <button class="btn btn-success" @onclick="Submit">Save</button>
+                    <button class="btn btn-secondary ms-2" @onclick="ResetForm">Clear</button>
+                </div>
+            </div>
+        </div>
+        @* Edit Categories *@
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>Existing Categories</h5>
+                    @if (categories.Count > 0)
+                    {
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cat in categories)
+                                {
+                                    <tr>
+                                        <td><strong>@cat.Name</strong></td>
+                                        <td>@cat.Description</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => EditCategory(cat)">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCategory(cat.Id)">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No categories found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

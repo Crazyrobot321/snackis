@@ -1,0 +1,40 @@
+﻿@page "/"
+@inject ICategoryServiceApi categoryServiceApi
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Snackis.Application.Interfaces.Api
+@using Snackis.Domain.Entities
+@using System.Text.Json
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Discussion Forums</h2>
+    <AuthorizeView Roles="Admin">
+        <a href="/admin/categories" class="btn btn-primary">
+            <span class="oi oi-plus"></span> New Category
+        </a>
+    </AuthorizeView>
+</div>
+
+
+<div class="list-group shadow-sm">
+    @if(Categories != null && Categories.Count > 0)
+    {
+        @foreach (var Category in Categories)
+        {
+            <CategoryComponent Category="Category" />
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No categories available.</div>
+    }
+</div>
+
+@code{
+
+    public List<ApplicationCategory> Categories { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await categoryServiceApi.GetAllCategoriesAsync();
+    }
+}

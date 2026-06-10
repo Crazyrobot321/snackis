@@ -1,0 +1,101 @@
+﻿@page "/privatemessages"
+@attribute [Authorize(Roles = "Admin, User")]
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using Snackis.Application.DTOs
+@using Snackis.Application.Interfaces.Api
+@using Snackis.Domain.Entities
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IPrivateMessageServiceApi PrivateMessageServiceApi
+@inject UserManager<ApplicationUser> userManager
+
+<div class="container mt-5">
+    <h3 class="mb-3">Inbox</h3>
+    
+    <button class="btn btn-outline-primary mb-3 me-2" @onclick="FetchMessages">Refresh</button>
+    <button class="btn btn-primary mb-3" @onclick="ShowForm">New Message</button>
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    @if (Messages != null && Messages.Count > 0)
+    {
+        <div class="list-group">
+            @foreach (var message in Messages)
+            {
+                <div class="list-group-item">
+                    <h5>@message.Title</h5>
+                    <p class="mb-1">@message.Content</p>
+                    <small class="text-muted">From: @message.SenderName</small>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No messages found.</p>
+    }
+
+    <h5 class="mt-4">Sent Messages</h5>
+    @if (SentMessages != null && SentMessages.Count > 0)
+    {
+        @foreach (var message in SentMessages)
+        {
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <strong>To: @message.SenderName</strong>
+                        <span>@message.SentAt</span>
+                    </div>
+                    <p class="mb-0">@message.Title</p>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted">No sent messages.</p>
+    }
+</div>
+
+@if (showForm)
+{
+    <div class="modal d-block" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send New Private Message</h5>
+                    <button type="button" class="btn-close" @onclick="CloseForm"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipient" class="form-label">Recipient</label>
+                        <select class="form-control" id="recipient" @bind="newMessageRecipient">
+                            <option value="">Select Recipient</option>
+                            @foreach (var user in users)
+                            {
+                                <option value="@user.Id">@user.UserName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" @bind="newMessageSubject" placeholder="Enter subject">
+                    </div>
+                    <div class="mb-3">
+                        <label for="messageContent" class="form-label">Message</label>
+                        <textarea class="form-control" id="messageContent" @bind="newMessageContent" rows="4" placeholder="Enter your message"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseForm">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SendMessage">Send Message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

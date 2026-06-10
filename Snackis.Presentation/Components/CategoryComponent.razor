@@ -1,0 +1,12 @@
+﻿@using Snackis.Domain.Entities
+<a href="/category/@Category.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
+    <div>
+        <h5 class="mb-1 text-primary">@Category.Name</h5>
+        <p class="text-muted small mb-0">@Category.Description</p>
+    </div>
+</a>
+
+@code {
+    [Parameter]
+    public ApplicationCategory Category { get; set; } = default!;
+}
